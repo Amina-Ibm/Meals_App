@@ -5,13 +5,12 @@ import 'package:meals/data/categoryNames.dart';
 import 'package:meals/model/category.dart';
 import 'package:meals/model/meal.dart';
 class MealsScreen extends StatelessWidget{
-  MealsScreen({super.key, this.title, required this.meals, required this.onTapFavorite});
+  MealsScreen({super.key, this.title, required this.meals});
   final String? title;
   final List<Meal> meals;
-  final void Function(Meal meal) onTapFavorite;
 
   void selectMeal(BuildContext context,Meal meal){
-    Navigator.push(context, MaterialPageRoute(builder: (ctx) => MealDetail(meal: meal, onTapFavorite: onTapFavorite,)));
+    Navigator.push(context, MaterialPageRoute(builder: (ctx) => MealDetail(meal: meal)));
   }
   Widget build(BuildContext context){
     Widget content = ListView.builder(

@@ -1,24 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals/model/meal.dart';
+import 'package:meals/provider/favouriteMealProvider.dart';
 
-class MealDetail extends StatelessWidget{
-  MealDetail({super.key, required this.meal, required this.onTapFavorite});
+class MealDetail extends ConsumerWidget{
+  MealDetail({super.key, required this.meal});
   final Meal meal;
-  final void Function(Meal meal) onTapFavorite;
 
 
-  Widget build(BuildContext context){
+  Widget build(BuildContext context, WidgetRef ref){
+    final favMeals = ref.watch(favouriteMealsProvider);
+    bool mealIsFav = favMeals.contains(meal);
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.title),
           actions: [
-            IconButton(onPressed: (){onTapFavorite(meal);}, icon: Icon(Icons.star_border_outlined))
+            IconButton(onPressed: (){
+              final mealAdded = ref.read(favouriteMealsProvider.notifier).toggleFavouriteMealStatus(meal);
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(mealAdded ? 'Meal added as favourite' : 'Meal removed from favourite')));
+            },
+                icon: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 400),
+                  transitionBuilder: (child, animation) {
+                      return RotationTransition(turns: animation, child: child,);
+                  },
+                  child: Icon(mealIsFav ? Icons.star : Icons.star_border_outlined, key: ValueKey(mealIsFav),),
+                ) )
           ]
       ),
       body: SingleChildScrollView(
         child: Column(
             children: [
-              Image.network(meal.imageUrl),
+              Hero(tag: meal.id, child: Image.network(meal.imageUrl)),
               Text('Ingredients',
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     color: Theme.of(context).colorScheme.primary
